@@ -1,17 +1,7 @@
-# primitive_repository_search_engine
+## Hey!
 
-Привіт! Мені дуже важливий будь який фітбек!
-Буду дуже вдячна!
+Thank you very much for the cool task. Unfortunately, I couldn't complete it within 2 days, but I will definitely finish it!
 
-## Getting Started
+If you decide to run the code, make sure to insert **YOUR GIT AUTH TOKEN** into the [`https://https://github.com/OlgaYarukhina/primitive_repository_search_engine/lib/service/api_repositories.dart`](service/api_repositories.dart) file.
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Looking forward to completing the task!

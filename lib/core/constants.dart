@@ -49,7 +49,7 @@ class AppColors {
     'Layer3': colorFromHexWithOpacity('#0CC509', 0.05),
     'Layer4': colorFromHex('#F2F2F2'),
     'textPrimary': colorFromHex('#1C2027'),
-    'textPlaceholder': colorFromHex('#BFBFBF'),
+    'secondaryRegular': colorFromHex('#BFBFBF'),
     'error': colorFromHex('#EA1A1A'),
     'icon': colorFromHex('#1C2027'),
   };

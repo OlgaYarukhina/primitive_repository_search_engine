@@ -32,7 +32,7 @@ class FavoritesProvider extends ChangeNotifier {
   }
 
   Future<List<int>> getFavoriteRepositoryIds() async {
-    await _loadFavorites(); // Ensure favorites are loaded
+    await _loadFavorites(); 
     return _favoriteRepositoryIds;
   }
 }

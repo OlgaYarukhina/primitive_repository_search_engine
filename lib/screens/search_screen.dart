@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 import 'package:primitive_repository_search_engine/core/constants.dart';
+import 'package:primitive_repository_search_engine/widgets/result_item.dart';
 import 'package:provider/provider.dart';
 import 'package:primitive_repository_search_engine/models/repository.dart';
 import 'package:primitive_repository_search_engine/providers/favorites_provider.dart';
@@ -8,7 +10,7 @@ import 'package:primitive_repository_search_engine/service/api_repositories.dart
 import 'package:primitive_repository_search_engine/service/search_history_service.dart';
 
 class SearchResultsScreen extends StatefulWidget {
-  const SearchResultsScreen({Key? key}) : super(key: key);
+  const SearchResultsScreen({super.key});
 
   @override
   State<SearchResultsScreen> createState() => _SearchResultsScreenState();
@@ -17,36 +19,38 @@ class SearchResultsScreen extends StatefulWidget {
 class _SearchResultsScreenState extends State<SearchResultsScreen> {
   final GitHubService _gitHubService = GitHubService();
   final TextEditingController _searchController = TextEditingController();
+  late FocusNode _focusNode;
+  var logger = Logger();
   List<Repository> _repositories = [];
   List<Repository> _searchedRepositories = [];
+  final Set<int> _favoriteIds = <int>{};
   bool _isSearching = false;
-  bool _isFocused = false; // Track whether the TextField is focused or not
-  late FocusNode _focusNode; // FocusNode to track focus state
-  Set<int> _favoriteIds = Set<int>(); // Set to track favorite repository ids
+  bool _isFocused = false;
 
   @override
   void initState() {
     super.initState();
-    _focusNode = FocusNode(); // Initialize the FocusNode
-    _focusNode.addListener(_onFocusChange); // Add listener for focus changes
+    _focusNode = FocusNode();
+    _focusNode.addListener(_onFocusChange);
     _loadSearchedRepositories();
     _loadFavorites();
   }
 
   @override
   void dispose() {
-    _focusNode.dispose(); // Clean up the FocusNode when done
+    _focusNode.dispose();
     super.dispose();
   }
 
   void _onFocusChange() {
     setState(() {
-      _isFocused = _focusNode.hasFocus; // Update the focus state
+      _isFocused = _focusNode.hasFocus;
     });
   }
 
   Future<void> _loadSearchedRepositories() async {
-    _searchedRepositories = await SearchHistoryService.getSearchedRepositories();
+    _searchedRepositories =
+        await SearchHistoryService.getSearchedRepositories();
     setState(() {});
   }
 
@@ -55,19 +59,20 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
       _isSearching = true;
     });
     try {
-      List<Repository> repositories = await _gitHubService.searchRepositories(query);
+      List<Repository> repositories =
+          await _gitHubService.searchRepositories(query);
       setState(() {
         _repositories = repositories;
         _isSearching = false;
         if (repositories.isNotEmpty) {
           for (var repo in repositories) {
-            SearchHistoryService.addSearchedRepository(repo); // Додати кожен знайдений репозиторій до історії
+            SearchHistoryService.addSearchedRepository(repo);
           }
-          _loadSearchedRepositories(); // Оновити список збережених репозиторіїв
+          _loadSearchedRepositories();
         }
       });
     } catch (e) {
-      print('Error searching repositories: $e');
+      logger.e('Error searching repositories', error: e);
       setState(() {
         _isSearching = false;
       });
@@ -94,6 +99,14 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
         Provider.of<FavoritesProvider>(context, listen: false)
             .addFavoriteRepository(repositoryId);
       }
+    });
+  }
+
+  void _deleteSearchedRepository(int repositoryId) {
+    setState(() {
+      _searchedRepositories.removeWhere((repo) => repo.id == repositoryId);
+      // Will finish it later
+      //   SearchHistoryService.removeSearchedRepository(repositoryId);
     });
   }
 
@@ -137,13 +150,13 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                 focusNode: _focusNode,
                 decoration: InputDecoration(
                   hintText: 'Search',
-                  hintStyle: TextStyle(
-                    color: AppColors.colors['textPlaceholder'],
+                  hintStyle: AppTextStyles.secondaryRegular.copyWith(
+                    color: AppColors.colors['secondaryRegular'],
                   ),
                   contentPadding: const EdgeInsets.fromLTRB(6, 16, 6, 6),
                   filled: true,
                   fillColor: _isFocused
-                      ? Colors.green[100]
+                      ? AppColors.colors['Layer3']
                       : AppColors.colors['Layer2'],
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(30.0),
@@ -197,54 +210,28 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
                     Text(
-                      'Searched Repositories',
-                      style: TextStyle(
-                        color: Theme.of(context).primaryColor,
+                      'Search History',
+                      style: AppTextStyles.primaryRegular.copyWith(
+                        color: AppColors.colors['accent'],
                       ),
                     ),
+                    const SizedBox(height: 8),
                     ListView.builder(
                       shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
+                      physics: const NeverScrollableScrollPhysics(),
                       itemCount: _searchedRepositories.length,
                       itemBuilder: (context, index) {
                         bool isFavorite = _favoriteIds
                             .contains(_searchedRepositories[index].id);
-                        return Padding(
-                          padding:
-                              const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Container(
-                            padding: const EdgeInsets.all(12.0),
-                            decoration: BoxDecoration(
-                              color: Colors.grey[200],
-                              borderRadius: BorderRadius.circular(10.0),
-                            ),
-                            child: Row(
-                              mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    _searchedRepositories[index].fullName,
-                                    style: const TextStyle(fontSize: 16.0),
-                                  ),
-                                ),
-                                IconButton(
-                                  icon: Icon(
-                                    isFavorite
-                                        ? Icons.star_rounded
-                                        : Icons.star_border_rounded,
-                                    color: isFavorite ? Colors.green : null,
-                                  ),
-                                  onPressed: () {
-                                    _toggleFavorite(
-                                        _searchedRepositories[index].id);
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
+                        return RepositoryItem(
+                          repository: _searchedRepositories[index],
+                          isFavorite: isFavorite,
+                          onFavoriteToggle: () =>
+                              _toggleFavorite(_searchedRepositories[index].id),
+                          onDelete: () => _deleteSearchedRepository(
+                              _searchedRepositories[index].id),
                         );
                       },
                     ),
@@ -265,8 +252,8 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                   _searchController.text.isNotEmpty)
                 Text(
                   'What we found',
-                  style: TextStyle(
-                    color: Theme.of(context).primaryColor,
+                  style: AppTextStyles.primaryRegular.copyWith(
+                    color: AppColors.colors['accent'],
                   ),
                 ),
               if (!_isSearching &&
@@ -284,8 +271,8 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                       Text(
                         'You have empty history.\nClick on search to start journey!',
                         textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: AppColors.colors['textPlaceholder'],
+                        style: AppTextStyles.secondaryRegular.copyWith(
+                          color: AppColors.colors['secondaryRegular'],
                         ),
                       ),
                     ],
@@ -299,52 +286,23 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                     if (_repositories.isNotEmpty)
                       Text(
                         'What we found',
-                        style: TextStyle(
-                          color: Theme.of(context).primaryColor,
+                        style: AppTextStyles.primaryRegular.copyWith(
+                          color: AppColors.colors['accent'],
                         ),
                       ),
                     const SizedBox(height: 8),
                     ListView.builder(
                       shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
+                      physics: const NeverScrollableScrollPhysics(),
                       itemCount: _repositories.length,
                       itemBuilder: (context, index) {
                         bool isFavorite =
                             _favoriteIds.contains(_repositories[index].id);
-                        return Padding(
-                          padding:
-                              const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Container(
-                            padding: const EdgeInsets.all(12.0),
-                            decoration: BoxDecoration(
-                              color: Colors.grey[200],
-                              borderRadius: BorderRadius.circular(10.0),
-                            ),
-                            child: Row(
-                              mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    _repositories[index].fullName,
-                                    style: const TextStyle(fontSize: 16.0),
-                                  ),
-                                ),
-                                IconButton(
-                                  icon: Icon(
-                                    isFavorite
-                                        ? Icons.star_rounded
-                                        : Icons.star_border_rounded,
-                                    color: isFavorite ? Colors.green : null,
-                                  ),
-                                  onPressed: () {
-                                    _toggleFavorite(
-                                        _repositories[index].id);
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
+                        return RepositoryItem(
+                          repository: _repositories[index],
+                          isFavorite: isFavorite,
+                          onFavoriteToggle: () =>
+                              _toggleFavorite(_repositories[index].id),
                         );
                       },
                     ),

@@ -38,7 +38,6 @@ class Repository {
   }
 }
 
-
 class Owner {
   final String login;
   final int id;

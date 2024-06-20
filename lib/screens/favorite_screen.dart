@@ -4,7 +4,7 @@ import 'package:primitive_repository_search_engine/providers/favorites_provider.
 import 'package:provider/provider.dart';
 
 class FavoritesScreen extends StatelessWidget {
-  const FavoritesScreen({Key? key}) : super(key: key);
+  const FavoritesScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -28,44 +28,50 @@ class FavoritesScreen extends StatelessWidget {
                   children: [
                     Image.asset(
                       IconConstants.noresult,
-                      height: 120,
                     ),
-                    const SizedBox(height: 16),
                     Text(
-                      'No favorite repositories found.',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: AppColors.colors['textPlaceholder'],
+                      'You have no favorites.\nClick on star while searching to add first favorite',
+                      textAlign: TextAlign.center,
+                      style: AppTextStyles.secondaryRegular.copyWith(
+                        color: AppColors.colors['secondaryRegular'],
                       ),
                     ),
                   ],
                 ),
-              ),
-            if (favoritesProvider.favoriteRepositoryIds.isNotEmpty)
+              )
+            else
               Expanded(
                 child: ListView.builder(
                   itemCount: favoritesProvider.favoriteRepositoryIds.length,
                   itemBuilder: (context, index) {
-                    int repositoryId = favoritesProvider.favoriteRepositoryIds[index];
+                    int repositoryId =
+                        favoritesProvider.favoriteRepositoryIds[index];
                     return Dismissible(
                       key: Key(repositoryId.toString()),
-                      direction: DismissDirection.startToEnd,
+                      direction: DismissDirection.endToStart,
                       background: Container(
-                        color: Colors.red,
-                        alignment: Alignment.centerLeft,
-                        padding: EdgeInsets.symmetric(horizontal: 20.0),
-                        child: Icon(Icons.delete, color: Colors.white),
+                        decoration: BoxDecoration(
+                          color: AppColors.colors['error'],
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        alignment: Alignment.centerRight,
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                        child: Icon(
+                          Icons.delete,
+                          color: AppColors.colors['Layer1'],
+                        ),
                       ),
                       onDismissed: (direction) {
-                        favoritesProvider.removeFavoriteRepository(repositoryId);
+                        favoritesProvider
+                            .removeFavoriteRepository(repositoryId);
                       },
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 8.0),
                         child: Container(
                           padding: const EdgeInsets.all(12.0),
                           decoration: BoxDecoration(
-                            color: Colors.grey[200],
-                            borderRadius: BorderRadius.circular(10.0),
+                            color: AppColors.colors['Layer2'],
+                            borderRadius: BorderRadius.circular(8.0),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -73,13 +79,16 @@ class FavoritesScreen extends StatelessWidget {
                               Expanded(
                                 child: Text(
                                   'Repository ID: $repositoryId',
-                                  style: const TextStyle(fontSize: 16.0),
+                                  style: AppTextStyles.primaryRegular.copyWith(
+                                    color: AppColors.colors['textPrimary'],
+                                  ),
                                 ),
                               ),
                               IconButton(
-                                icon: Icon(Icons.star_rounded, color: Colors.green),
+                                icon: Icon(Icons.star_rounded,
+                                    color: AppColors.colors['accent']),
                                 onPressed: () {
-                                  // Handle favorite toggle if needed
+                                  // Handle favorite toggle
                                 },
                               ),
                             ],
@@ -96,7 +105,3 @@ class FavoritesScreen extends StatelessWidget {
     );
   }
 }
-
-
-
-

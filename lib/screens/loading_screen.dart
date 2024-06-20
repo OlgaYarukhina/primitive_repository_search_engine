@@ -12,6 +12,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
   Widget build(BuildContext context) {
     return const Scaffold(
       body: Center(child: Text('Loading Screen'))
+      // Will finish it later
     );
   }
 }
