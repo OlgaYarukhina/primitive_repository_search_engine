@@ -4,7 +4,7 @@ class Repository {
   final String name;
   final String fullName;
   final bool private;
-  final Owner owner; 
+  final Owner owner;
 
   Repository({
     required this.id,
@@ -22,10 +22,22 @@ class Repository {
       name: json['name'],
       fullName: json['full_name'],
       private: json['private'],
-      owner: Owner.fromJson(json['owner']), 
+      owner: Owner.fromJson(json['owner']),
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'node_id': nodeId,
+      'name': name,
+      'full_name': fullName,
+      'private': private,
+      'owner': owner.toJson(), 
+    };
+  }
 }
+
 
 class Owner {
   final String login;
@@ -51,5 +63,16 @@ class Owner {
       url: json['url'],
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'login': login,
+      'id': id,
+      'node_id': nodeId,
+      'avatar_url': avatarUrl,
+      'url': url,
+    };
+  }
 }
+
 

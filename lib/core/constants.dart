@@ -42,9 +42,9 @@ class AppTextStyles {
 
 class AppColors {
   static Map<String, Color> colors = {
-    'background': colorFromHexWithOpacity('#FAFAFC', 0.26),
+    'background': colorFromHex('#FAFAFC'),
     'accent': colorFromHex('#0CC509'),
-    'Layer1': colorFromHex('#FFFFFF'),
+    'Layer1': colorFromHexWithOpacity('#FFFFFF', 0.26),
     'Layer2': colorFromHex('#F1F2F6'),
     'Layer3': colorFromHexWithOpacity('#0CC509', 0.05),
     'Layer4': colorFromHex('#F2F2F2'),

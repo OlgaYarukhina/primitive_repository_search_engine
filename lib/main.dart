@@ -24,8 +24,8 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Primitive git rep search engine',
       theme: ThemeData(
-        primaryColor: const Color(0xFF0CC509),
-        scaffoldBackgroundColor: const Color(0xFFFAFAFC),
+        primaryColor: AppColors.colors['accent'],
+        scaffoldBackgroundColor: AppColors.colors['background'],
         appBarTheme: AppBarTheme(
           backgroundColor: Colors.white,
           elevation: 8,

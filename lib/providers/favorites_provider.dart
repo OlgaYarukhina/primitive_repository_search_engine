@@ -13,7 +13,6 @@ class FavoritesProvider extends ChangeNotifier {
 
   Future<void> _loadFavorites() async {
     _prefs = await SharedPreferences.getInstance();
-    // отримання списку улюблених ID
     _favoriteRepositoryIds = _prefs?.getStringList('favorites')?.map(int.parse).toList() ?? [];
     notifyListeners();
   }
@@ -30,5 +29,10 @@ class FavoritesProvider extends ChangeNotifier {
     _favoriteRepositoryIds.remove(repositoryId);
     await _prefs?.setStringList('favorites', _favoriteRepositoryIds.map((id) => id.toString()).toList());
     notifyListeners();
+  }
+
+  Future<List<int>> getFavoriteRepositoryIds() async {
+    await _loadFavorites(); // Ensure favorites are loaded
+    return _favoriteRepositoryIds;
   }
 }
