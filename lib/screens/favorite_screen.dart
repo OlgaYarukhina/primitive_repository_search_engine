@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:primitive_repository_search_engine/core/constants.dart';
 import 'package:primitive_repository_search_engine/providers/favorites_provider.dart';
 import 'package:provider/provider.dart';
@@ -24,9 +25,10 @@ class FavoritesScreen extends StatelessWidget {
             if (favoritesProvider.favoriteRepositoryIds.isEmpty)
               Center(
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Image.asset(
+                    const SizedBox(height: 160.0),
+                    SvgPicture.asset(
                       IconConstants.noresult,
                     ),
                     Text(

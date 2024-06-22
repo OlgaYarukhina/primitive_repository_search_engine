@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:logger/logger.dart';
 import 'package:primitive_repository_search_engine/core/constants.dart';
 import 'package:primitive_repository_search_engine/widgets/result_item.dart';
@@ -26,6 +27,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
   final Set<int> _favoriteIds = <int>{};
   bool _isSearching = false;
   bool _isFocused = false;
+  bool _hasSearched = false;
 
   @override
   void initState() {
@@ -64,6 +66,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
       setState(() {
         _repositories = repositories;
         _isSearching = false;
+        _hasSearched = true; // Встановлюємо стан пошуку в true
         if (repositories.isNotEmpty) {
           for (var repo in repositories) {
             SearchHistoryService.addSearchedRepository(repo);
@@ -122,7 +125,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
             Padding(
               padding: const EdgeInsets.only(right: 8.0),
               child: IconButton(
-                icon: Image.asset(
+                icon: SvgPicture.asset(
                   IconConstants.favorites,
                 ),
                 onPressed: () {
@@ -153,7 +156,6 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                   hintStyle: AppTextStyles.secondaryRegular.copyWith(
                     color: AppColors.colors['secondaryRegular'],
                   ),
-                  contentPadding: const EdgeInsets.fromLTRB(6, 16, 6, 6),
                   filled: true,
                   fillColor: _isFocused
                       ? AppColors.colors['Layer3']
@@ -169,21 +171,33 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                   ),
                   prefixIcon: Padding(
                     padding: const EdgeInsets.all(6.0),
-                    child: Image.asset(
-                      IconConstants.searchOnBack,
+                    child: GestureDetector(
+                      onTap: () {
+                        if (_searchController.text.isNotEmpty) {
+                          _searchRepositories(_searchController.text);
+                        }
+                      },
+                      child: _isFocused
+                          ? SvgPicture.asset(
+                              IconConstants.search,
+                            )
+                          : SvgPicture.asset(
+                              IconConstants.searchOnBack,
+                            ),
                     ),
                   ),
                   suffixIcon: _searchController.text.isNotEmpty
                       ? Padding(
                           padding: const EdgeInsets.only(right: 8.0),
                           child: IconButton(
-                            icon: Image.asset(
+                            icon: SvgPicture.asset(
                               IconConstants.close,
                             ),
                             onPressed: () {
                               setState(() {
                                 _searchController.clear();
                                 _repositories.clear();
+                                _hasSearched = false;
                               });
                             },
                           ),
@@ -195,6 +209,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                     _isFocused = _focusNode.hasFocus || value.isNotEmpty;
                     if (value.isEmpty) {
                       _repositories.clear();
+                      _hasSearched = false;
                     }
                   });
                 },
@@ -247,25 +262,60 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                     ],
                   ),
                 ),
-              if (!_isSearching &&
-                  _repositories.isEmpty &&
-                  _searchController.text.isNotEmpty)
-                Text(
-                  'What we found',
-                  style: AppTextStyles.primaryRegular.copyWith(
-                    color: AppColors.colors['accent'],
+              if (_hasSearched && !_isSearching && _repositories.isEmpty)
+                Center(
+                  child: Column(
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              'What we found',
+                              style: AppTextStyles.primaryRegular.copyWith(
+                                color: AppColors.colors['accent'],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 160.0),
+                      SvgPicture.asset(
+                        IconConstants.noresult,
+                      ),
+                      Text(
+                        'Nothing was found for your search.\nPlease check the spelling',
+                        textAlign: TextAlign.center,
+                        style: AppTextStyles.secondaryRegular.copyWith(
+                          color: AppColors.colors['secondaryRegular'],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               if (!_isSearching &&
                   _repositories.isEmpty &&
                   _searchController.text.isEmpty &&
-                  !_isFocused)
+                  !_isFocused &&
+                  !_hasSearched)
                 Center(
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const SizedBox(height: 160),
-                      Image.asset(
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              'Search History',
+                              style: AppTextStyles.primaryRegular.copyWith(
+                                color: AppColors.colors['accent'],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 160.0),
+                      SvgPicture.asset(
                         IconConstants.noresult,
                       ),
                       Text(
@@ -283,13 +333,12 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 16),
-                    if (_repositories.isNotEmpty)
-                      Text(
-                        'What we found',
-                        style: AppTextStyles.primaryRegular.copyWith(
-                          color: AppColors.colors['accent'],
-                        ),
+                    Text(
+                      'What we found',
+                      style: AppTextStyles.primaryRegular.copyWith(
+                        color: AppColors.colors['accent'],
                       ),
+                    ),
                     const SizedBox(height: 8),
                     ListView.builder(
                       shrinkWrap: true,

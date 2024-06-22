@@ -9,12 +9,11 @@ class Constants {
 class IconConstants {
   static String images = 'assets/images';
 
-  static String back = '$images/back.png';
-  static String close = '$images/close.png';
-  static String favorites = '$images/favorites.png';
-  static String noresult = '$images/noresult.png';
-  static String search = '$images/search.png';
-  static String searchOnBack = '$images/searchOnBack.png';
+  static String close = '$images/close.svg';
+  static String favorites = '$images/favorites.svg';
+  static String noresult = '$images/noresult.svg';
+  static String search = '$images/search.svg';
+  static String searchOnBack = '$images/searchOnBack.svg';
 }
 
 class AppTextStyles {
